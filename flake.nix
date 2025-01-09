@@ -11,13 +11,19 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
+        datetime-service = pkgs.callPackage ./default.nix {};
       in {
-        packages.default = pkgs.callPackage ./default.nix {};
+        packages.default = datetime-service;
+        nixosModules.default = { config, pkgs, ... }: {
+          imports = [ ./service.nix ];
+          config = {
+            services.datetime-service = {
+              enable = true;
+            };
+          };
+          specialArgs = { inherit datetime-service; };
+        };
       }
-    ) // {
-      nixosModules.default = { config, pkgs, ... }: {
-        imports = [ ./service.nix ];
-      };
-    };
+    );
 }
 

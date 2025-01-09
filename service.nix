@@ -1,12 +1,12 @@
 # datetime-service/service.nix
-{ pkgs, ... }:
+{ pkgs, datetime-service, ... }:
 
 {
   systemd.services.datetime-service = {
     description = "Python DateTime Service";
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${pkgs.python3}/bin/python ${pkgs.datetime-service}/python-service/datetime_service.py";
+      ExecStart = "${pkgs.python3}/bin/python ${datetime-service}/python-service/datetime_service.py";
       Restart = "always";
       User = "root";
     };

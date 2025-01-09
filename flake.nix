@@ -24,6 +24,13 @@
             chmod +x $out/bin/datetime-service
           '';
         };
+
+        # ✅ Adding the default output here
+        defaultPackage = self.packages.${system}.default;
+        defaultApp = {
+          type = "app";
+          program = "${self.packages.${system}.default}/bin/datetime-service";
+        };
       });
 }
 

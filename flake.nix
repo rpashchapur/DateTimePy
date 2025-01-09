@@ -8,22 +8,28 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+    let
+      forAllSystems = flake-utils.lib.eachDefaultSystem;
+    in
+    forAllSystems (system:
       let
         pkgs = import nixpkgs { inherit system; };
         datetime-service = pkgs.callPackage ./default.nix {};
       in {
         packages.default = datetime-service;
-        nixosModules.default = { config, pkgs, ... }: {
-          imports = [ ./service.nix ];
-          config = {
-            services.datetime-service = {
-              enable = true;
-            };
-          };
-          specialArgs = { inherit datetime-service; };
-        };
       }
-    );
+    ) // {
+      nixosModules.default = { pkgs, ... }: {
+        systemd.services.datetime-service = {
+          description = "Python DateTime Service";
+          wantedBy = [ "multi-user.target" ];
+          serviceConfig = {
+            ExecStart = "${pkgs.python3}/bin/python ${pkgs.datetime-service}/python-service/datetime_service.py";
+            Restart = "always";
+            User = "root";
+          };
+        };
+      };
+    };
 }
 

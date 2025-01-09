@@ -6,9 +6,9 @@ datetime-service = pkgs.python3Packages.buildPythonPackage rec {
   version = "0.1.0";
 
   src = ./src/datetime-service-0.1.0.tar.gz;
-  format = "setuptools";  
+  format = "setuptools"; 
   propagatedBuildInputs = [ pkgs.python3Packages.python ];
-
+  
   doCheck = false;
 
   installPhase = ''
@@ -23,22 +23,18 @@ datetime-service = pkgs.python3Packages.buildPythonPackage rec {
   };
 };
 
-in
-{
-  config = {
-    environment.systemPackages = with pkgs; [ datetime-service ];
+in {
+  environment.systemPackages = with pkgs; [ datetime-service python3 ];
 
-    systemd.services.datetime-service = {
-      enable = true;
-      description = "Python DateTime Printing Service";
-      wantedBy = [ "default.target" ];
-      serviceConfig = {
-        ExecStart = "${datetime-service}/bin/datetime-service";
-        Restart = "always";
-        User = "root";
-        Group = "root";
-      };
-    };
+  # systemd service configuration
+  systemd.services.datetime-service = {
+    enable = true;
+    description = "Python DateTime Printing Service";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig.ExecStart = "${datetime-service}/bin/datetime-service";
+    serviceConfig.Restart = "always";
+    serviceConfig.User = "root";
+    serviceConfig.Group = "root";
   };
 }
 

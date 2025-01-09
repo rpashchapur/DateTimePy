@@ -1,6 +1,10 @@
 import time
 from datetime import datetime
 
-while True:
-    print(f"Current DateTime: {datetime.now().isoformat()}")
-    time.sleep(1)
+def main():
+    while True:
+        print(f"Current DateTime: {datetime.now().isoformat()}")
+        time.sleep(1)
+
+if __name__ == "__main__":
+    main()

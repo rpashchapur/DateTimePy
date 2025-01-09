@@ -5,29 +5,39 @@
     nixpkgs.url = "github:nixos/nixpkgs";
   };
 
-  outputs = { self, nixpkgs, ... }: {
-    packages = nixpkgs.lib.genAttrs [ "x86_64-linux" ] (system:
+  outputs = { self, nixpkgs, ... }: 
+  let 
+    systems = [ "x86_64-linux" "aarch64-linux" ];
+    forAllSystems = nixpkgs.lib.genAttrs systems;
+  in {
+    packages = forAllSystems (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-      in pkgs.python3.pkgs.buildPythonPackage {
-        pname = "datetime-service";
-        version = "0.1.0";
-        src = ./.;
-        buildInputs = [ pkgs.python3 ];
-        propagatedBuildInputs = [];
+      in {
+        default = pkgs.python3.pkgs.buildPythonPackage {
+          pname = "datetime-service";
+          version = "0.1.0";
+          src = ./.;
+          format = "pyproject";
+          nativeBuildInputs = [ pkgs.python3.pkgs.setuptools ];
+          propagatedBuildInputs = [];
+        };
       }
     );
 
+    defaultPackage = forAllSystems (system: self.packages.${system}.default);
+
+    apps = forAllSystems (system: {
+      default = {
+        type = "app";
+        program = "${self.packages.${system}.default}/bin/datetime-service";
+      };
+    });
+
     nixosModules.datetime-service = { config, pkgs, ... }: {
-      systemd.services."datetime-service" = {
-        description = "Datetime Service";
-        after = [ "network.target" ];
-        wantedBy = [ "multi-user.target" ];
-        serviceConfig = {
-          ExecStart = "${pkgs.python3}/bin/python3 ${./datetime_service/main.py}";
-          Restart = "always";
-          RestartSec = "5s";
-        };
+      systemd.services."datetime-service" = import ./systemd/datetime-service.nix {
+        self = self;
+        pkgs = pkgs;
       };
     };
   };

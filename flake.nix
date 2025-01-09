@@ -11,10 +11,11 @@
       let
         pkgs = import nixpkgs { inherit system; };
       in {
+        # Build a Python package for DateTime service
         packages.default = pkgs.python3Packages.buildPythonPackage {
           pname = "datetime-service";
           version = "0.1.0";
-          src = ./.;
+          src = ./src/datetime-service-0.1.0.tar.gz;
           format = "setuptools";
           propagatedBuildInputs = [ pkgs.python3Packages.python ];
           doCheck = false;
@@ -25,12 +26,8 @@
           '';
         };
 
-        # ✅ Adding the default output here
+        # Export for use in the main flake
         defaultPackage = self.packages.${system}.default;
-        defaultApp = {
-          type = "app";
-          program = "${self.packages.${system}.default}/bin/datetime-service";
-        };
       });
 }
 

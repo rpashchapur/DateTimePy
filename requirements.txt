@@ -1,0 +1,2 @@
+# Uncomment if you need any dependencies for your Python service
+# e.g., requests==2.28.1

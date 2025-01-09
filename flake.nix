@@ -1,3 +1,4 @@
+# datetime-service/flake.nix
 {
   description = "Python DateTime Service Flake";
 
@@ -11,23 +12,9 @@
       let
         pkgs = import nixpkgs { inherit system; };
       in {
-        # Build a Python package for DateTime service
-        packages.default = pkgs.python3Packages.buildPythonPackage {
-          pname = "datetime-service";
-          version = "0.1.0";
-          src = ./src/datetime-service-0.1.0.tar.gz;
-          format = "setuptools";
-          propagatedBuildInputs = [ pkgs.python3Packages.python ];
-          doCheck = false;
-          installPhase = ''
-            mkdir -p $out/bin
-            cp main.py $out/bin/datetime-service
-            chmod +x $out/bin/datetime-service
-          '';
-        };
-
-        # Export for use in the main flake
-        defaultPackage = self.packages.${system}.default;
-      });
+        packages.default = pkgs.callPackage ./default.nix {};
+        nixosModules.default = import ./service.nix { inherit pkgs; };
+      }
+    );
 }
 

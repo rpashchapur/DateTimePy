@@ -1,3 +1,4 @@
+# datetime-service/flake.nix
 {
   description = "Python DateTime Service Flake";
 
@@ -12,10 +13,11 @@
         pkgs = import nixpkgs { inherit system; };
       in {
         packages.default = pkgs.callPackage ./default.nix {};
-        nixosModules.default = { config, pkgs, ... }: {
-          imports = [ ./service.nix ];
-        };
       }
-    );
+    ) // {
+      nixosModules.default = { config, pkgs, ... }: {
+        imports = [ ./service.nix ];
+      };
+    };
 }
 

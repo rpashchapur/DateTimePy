@@ -21,8 +21,8 @@
           format = "pyproject";
           nativeBuildInputs = [ pkgs.python3.pkgs.setuptools ];
           propagatedBuildInputs = [
-            pkgs.python3.pkgs.requests
-            pkgs.python3.pkgs.pytz
+            pkgs.python3.pkgs.humanize
+            pkgs.python3.pkgs.arrow
           ];
         };
       }
